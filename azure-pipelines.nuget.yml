@@ -72,41 +72,7 @@ jobs:
           solution: "$(solution)"
           configuration: "$(buildConfiguration)"
 
-      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
-        displayName: "ESRP CodeSigning - Package contents"
-        inputs:
-          ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
-          FolderPath: src
-          Pattern: |
-            *\$(buildConfiguration)\WinGetUtil\WinGetUtil.dll
-            WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.dll
-          UseMinimatch: true
-          signConfigType: inlineSignParams
-          inlineOperation: |
-            [
-              {
-                  "KeyCode" : "CP-230012",
-                  "OperationCode" : "SigntoolSign",
-                  "Parameters" : {
-                      "OpusName" : "Microsoft",
-                      "OpusInfo" : "http://www.microsoft.com",
-                      "FileDigest" : "/fd \"SHA256\"",
-                      "PageHash" : "/NPH",
-                      "TimeStamp" : "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
-                  },
-                  "ToolName" : "sign",
-                  "ToolVersion" : "1.0"
-              },
-              {
-                  "KeyCode" : "CP-230012",
-                  "OperationCode" : "SigntoolVerify",
-                  "Parameters" : {},
-                  "ToolName" : "sign",
-                  "ToolVersion" : "1.0"
-              }
-            ]
-
-      - task: NuGetCommand@2
+     - task: NuGetCommand@2
         displayName: Pack WingetUtil nuget package
         inputs:
           command: pack
@@ -114,31 +80,6 @@ jobs:
           versioningScheme: byEnvVar
           versionEnvVar: version
           packDestination: "$(Build.ArtifactStagingDirectory)"
-
-      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
-        displayName: "ESRP CodeSigning - NuGet package"
-        inputs:
-          ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
-          FolderPath: "$(Build.ArtifactStagingDirectory)"
-          Pattern: "Microsoft.Packaging.WinGetUtil.$(version).nupkg"
-          signConfigType: inlineSignParams
-          inlineOperation: |
-            [
-              {
-                  "KeyCode" : "CP-401405",
-                  "OperationCode" : "NuGetSign",
-                  "Parameters" : {},
-                  "ToolName" : "sign",
-                  "ToolVersion" : "1.0"
-              },
-              {
-                  "KeyCode" : "CP-401405",
-                  "OperationCode" : "NuGetVerify",
-                  "Parameters" : {},
-                  "ToolName" : "sign",
-                  "ToolVersion" : "1.0"
-              }
-            ]
 
       - task: PublishBuildArtifacts@1
         displayName: Publish nuget package to artifacts
