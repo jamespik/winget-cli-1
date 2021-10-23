@@ -72,7 +72,7 @@ jobs:
           solution: "$(solution)"
           configuration: "$(buildConfiguration)"
 
-     - task: NuGetCommand@2
+      - task: NuGetCommand@2
         displayName: Pack WingetUtil nuget package
         inputs:
           command: pack
